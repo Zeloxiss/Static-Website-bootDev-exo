@@ -1,7 +1,13 @@
-from textnode import TextNode, TextType
+from textnode import *
+from url_extractor import *
 
 def main():
-    new = TextNode("This is some anchor text", TextType.LINK, "https://www.boot.dev")
-    print(new)
-
+    node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            TextType.TEXT,
+        )
+    
+    print("\n\n")
+    split_nodes_image([node])
+    # print(split_nodes_image([node]))
 main()
