@@ -11,6 +11,11 @@ class TextType(Enum):
     LINK = "link"
     IMAGE = "image"
 
+class MarkdownDelimiter(Enum):
+    BOLD = ("**", TextType.BOLD)
+    ITALIC = ("_", TextType.ITALIC)
+    CODE = ("`", TextType.CODE)
+
 class TextNode:
     def __init__(self, text: str, text_type: TextType, url = None):
         self.text = text
@@ -46,8 +51,14 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
             return LeafNode("img", "", {"src": text_node.url, "alt": text_node.text})
 
 def text_to_textnodes(text):
-    pass
-    #???
+    text_nodes = [TextNode(text, TextType.TEXT)]
+    text_nodes = split_nodes_delimiter(text_nodes, "**", TextType.BOLD)
+    text_nodes = split_nodes_delimiter(text_nodes, "_", TextType.ITALIC)
+    text_nodes = split_nodes_delimiter(text_nodes, "`", TextType.CODE)
+    text_nodes = split_nodes_image(text_nodes)
+    text_nodes = split_nodes_link(text_nodes)
+    return text_nodes
+
 
 
 
@@ -83,7 +94,8 @@ def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
     new_nodes = []
     for node in old_nodes:
         if node.text_type != TextType.TEXT:
-            raise ValueError("Node TextType is not text")
+            new_nodes.append(node)
+            continue
         
         extracted_images = extract_markdown_images(node.text)
         if len(extracted_images) == 0:
@@ -120,7 +132,8 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
     new_nodes = []
     for node in old_nodes:
         if node.text_type != TextType.TEXT:
-            raise ValueError("Node TextType is not text")
+            new_nodes.append(node)
+            continue
         
         extracted_links = extract_markdown_links(node.text)
         if len(extracted_links) == 0:
