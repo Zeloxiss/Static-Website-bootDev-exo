@@ -169,22 +169,42 @@ class TestTextNode(unittest.TestCase):
         text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
         nodes = text_to_textnodes(text)
         self.assertEqual(nodes, [
-    TextNode("This is ", TextType.TEXT),
-    TextNode("text", TextType.BOLD),
-    TextNode(" with an ", TextType.TEXT),
-    TextNode("italic", TextType.ITALIC),
-    TextNode(" word and a ", TextType.TEXT),
-    TextNode("code block", TextType.CODE),
-    TextNode(" and an ", TextType.TEXT),
-    TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
-    TextNode(" and a ", TextType.TEXT),
-    TextNode("link", TextType.LINK, "https://boot.dev"),
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.TEXT),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
     ])
 
-    def test_more_tests_for_text_to_textnodes(self):
-        raise Exception("More tests pwease")
+    def test_empty_text_to_textnodes(self):
+        text = ""
+        nodes = text_to_textnodes(text)
+        self.assertEqual(nodes, [])
+    
+    def test_multiple_duplicates_text_to_textnodes(self):
+        text = "This is **bold** text with _italic_ and also **more bold** and _more italic_ !"
+        nodes = text_to_textnodes(text)
+        self.assertEqual(nodes, [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("bold", TextType.BOLD),
+            TextNode(" text with ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" and also ", TextType.TEXT),
+            TextNode("more bold", TextType.BOLD),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("more italic", TextType.ITALIC),
+            TextNode(" !", TextType.TEXT)
+        ])
 
-
+    def test_uneven_text_to_textnodes(self):
+        with self.assertRaises(Exception):
+            text = "This is a **bold** attempt at _provoking a bug"
+            nodes = text_to_textnodes(text)
 
 
 

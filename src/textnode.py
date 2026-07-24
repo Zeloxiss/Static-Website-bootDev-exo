@@ -11,11 +11,6 @@ class TextType(Enum):
     LINK = "link"
     IMAGE = "image"
 
-class MarkdownDelimiter(Enum):
-    BOLD = ("**", TextType.BOLD)
-    ITALIC = ("_", TextType.ITALIC)
-    CODE = ("`", TextType.CODE)
-
 class TextNode:
     def __init__(self, text: str, text_type: TextType, url = None):
         self.text = text
