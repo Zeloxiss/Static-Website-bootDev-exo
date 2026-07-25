@@ -128,6 +128,7 @@ class TestTextNode(unittest.TestCase):
         split_node = split_nodes_delimiter([node], "**", TextType.BOLD)
         self.assertEqual(split_node[0], node)
 
+        #Image Split
     def test_split_images(self):
         node = TextNode(
             "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
@@ -145,7 +146,7 @@ class TestTextNode(unittest.TestCase):
             ],
             new_nodes,
         )
-    
+        #Link Split
     def test_split_links(self):
         node = TextNode(
             "This is text with a [link](https://i.imgur.com/zjjcJKZ.png) and another [second link](https://i.imgur.com/3elNhQu.png)",
@@ -164,7 +165,7 @@ class TestTextNode(unittest.TestCase):
             new_nodes,
         )
     
-    
+        #Text_to_textnode
     def test_text_to_textnodes(self):
         text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
         nodes = text_to_textnodes(text)
@@ -206,10 +207,96 @@ class TestTextNode(unittest.TestCase):
             text = "This is a **bold** attempt at _provoking a bug"
             nodes = text_to_textnodes(text)
 
+class TestBlocks(unittest.TestCase):
+        #markdown_to_blocks
+    def test_markdown_to_block_simple(self):
+        markdown = """\n# Heading\n\nA simple paragraph\nwith multiple lines\n\n- a last list\n- a last list again"""
+        blocks = markdown_to_blocks(markdown)
+        self.assertEqual(blocks, [
+            "# Heading",
+            "A simple paragraph\nwith multiple lines",
+            "- a last list\n- a last list again"
+        ])
 
+    def test_markdown_to_block_with_trailing_whitespaces(self):
+        markdown = """\n# Heading\n\nA simple paragraph   \n      with multiple lines \n\n- a last list   \n  - a last list again """
+        blocks = markdown_to_blocks(markdown)
+        self.assertEqual(blocks, [
+            "# Heading",
+            "A simple paragraph\nwith multiple lines",
+            "- a last list\n- a last list again"
+        ])
 
+    def test_markdown_to_block_double_newlines(self):
+        markdown = """\n# Heading\n\n\nA simple paragraph\nwith multiple lines\n\n- a last list\n- a last list again\n"""
+        blocks = markdown_to_blocks(markdown)
+        self.assertEqual(blocks, [
+            "# Heading",
+            "A simple paragraph\nwith multiple lines",
+            "- a last list\n- a last list again"
+        ])
 
+    def test_markdown_to_block_no_text(self):
+        markdown = ""
+        blocks = markdown_to_blocks(markdown)
+        self.assertEqual(blocks, [])
 
+    def test_markdown_to_block_list(self):
+        with self.assertRaises(ValueError):
+            markdown = ["line 1", "line 32"]
+            block = markdown_to_blocks(markdown)
+    
+        ###Block_to_Blocktype###
+    def test_block_to_block_type_para(self):
+        markdown = "This is txt\nAnd mor t xt"
+        block_type = block_to_block_type(markdown)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_heading(self):
+        markdown = "### This is header 3\n#### And header 4"
+        block_type = block_to_block_type(markdown)
+        self.assertEqual(block_type, BlockType.HEADING)
+
+    def test_block_to_block_type_fake_heading(self):
+        markdown = "### This is header 3\n####And a surprise not_header"
+        block_type = block_to_block_type(markdown)
+        self.assertEqual(block_type, BlockType.HEADING)    
+
+    def test_block_to_block_type_fake_heading_b(self):
+        markdown = "### This is header 3\n #### And a surprise not_header"
+        block_type = block_to_block_type(markdown)
+        self.assertEqual(block_type, BlockType.HEADING)  
+    
+    def test_block_to_block_type_quote_notheading(self):
+        markdown = ">### if not header, why header shape ?\n> uhhh ???"
+        block_type = block_to_block_type(markdown)
+        self.assertEqual(block_type, BlockType.QUOTE)  
+
+    def test_block_to_block_type_code(self):
+        markdown = "```\nThis is code\n```"
+        block_type = block_to_block_type(markdown)
+        self.assertEqual(block_type, BlockType.CODE)
+    
+    def test_block_to_block_type_quote(self):
+        markdown = "> I like pigs. Dogs look up to us. Cats look down on us. Pigs treat us as equals.\n>\n>— Sir Winston Churchill "
+        block_type = block_to_block_type(markdown)
+        self.assertEqual(block_type, BlockType.QUOTE)
+
+    def test_block_to_block_type_u_list(self):
+        markdown = "- truc\n- machin\n- chose"
+        block_type = block_to_block_type(markdown)
+        self.assertEqual(block_type, BlockType.UNORDERED_LIST)
+    
+    def test_block_to_block_type_u_list(self):
+        markdown = "1. truc\n2. machin\n3. chose"
+        block_type = block_to_block_type(markdown)
+        self.assertEqual(block_type, BlockType.ORDERED_LIST)
+    
+    def test_block_to_block_type_empty(self):
+        markdown = ""
+        block_type = block_to_block_type(markdown)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+    
 
 if __name__ == "__main__":
     unittest.main()

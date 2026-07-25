@@ -11,6 +11,14 @@ class TextType(Enum):
     LINK = "link"
     IMAGE = "image"
 
+class BlockType(Enum):
+    PARAGRAPH = "paragraph"
+    HEADING = "heading"
+    CODE = "code"
+    QUOTE = "quote"
+    UNORDERED_LIST = "unordered_list"
+    ORDERED_LIST = "ordered_list"
+
 class TextNode:
     def __init__(self, text: str, text_type: TextType, url = None):
         self.text = text
@@ -29,6 +37,8 @@ class TextNode:
 
     def __repr__(self):
         return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
+
+    ### Base functions ###
 
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
     match text_node.text_type:
@@ -54,8 +64,7 @@ def text_to_textnodes(text):
     text_nodes = split_nodes_link(text_nodes)
     return text_nodes
 
-
-
+    ### Splitters ###
 
 def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: TextType) -> list[TextNode]:
     new_nodes = []
@@ -160,3 +169,44 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
                     
             new_nodes.extend(reassembled_nodes)
     return new_nodes
+
+    ### Blocks ###
+
+def markdown_to_blocks(markdown):
+    if not isinstance(markdown, str):
+        raise ValueError("This is not a string")
+    raw_blocks = markdown.split("\n\n")
+    blocks = []
+    for block in raw_blocks:
+        line_by_line = block.split("\n")
+        new_lines = []
+        for line in line_by_line:
+            new_lines.append(line.strip())
+        block = "\n".join(new_lines)
+        if block != "" and block != "\n":
+            blocks.append(block.strip())
+    return blocks
+
+def block_to_block_type(block):
+    if not isinstance(block, str):
+        raise ValueError("This is not a string")
+    if len(block) < 1:
+        return BlockType.PARAGRAPH
+
+    if re.match("^([#]{1,6})[ ]", block) != None:
+        return BlockType.HEADING
+    elif block.startswith("```\n") and block.endswith("\n```"):
+        return BlockType.CODE
+    else:
+        lines = block.split("\n")
+        if all(line.startswith(">") for line in lines):
+            return BlockType.QUOTE
+        elif all(line.startswith("- ") for line in lines):
+            return BlockType.UNORDERED_LIST
+        elif all(lines[i].startswith(f"{i+1}. ") for i in range(len(lines))):
+            return BlockType.ORDERED_LIST
+        else:
+            return BlockType.PARAGRAPH
+
+
+
