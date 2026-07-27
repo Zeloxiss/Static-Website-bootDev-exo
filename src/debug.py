@@ -1,16 +1,17 @@
 from textnode import *
 from url_extractor import *
+from md_to_html import markdown_to_html_node
 
 def main():
-    block = "```\nThis is code\n```"
-    if block[:4] == "```\n":
-        print("A")
-    if block[-4:] == "\n```":
-        print("B")
-    #         return True
-    # return False
-    return "C"
+    md = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
 
+    node = markdown_to_html_node(md)
 
+    return node.to_html()
 
 print(main())

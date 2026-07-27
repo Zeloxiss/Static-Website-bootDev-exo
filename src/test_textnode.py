@@ -248,7 +248,7 @@ class TestBlocks(unittest.TestCase):
     
         ###Block_to_Blocktype###
     def test_block_to_block_type_para(self):
-        markdown = "This is txt\nAnd mor t xt"
+        markdown = "This is txt\nAnd more text"
         block_type = block_to_block_type(markdown)
         self.assertEqual(block_type, BlockType.PARAGRAPH)
 
