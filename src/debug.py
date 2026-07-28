@@ -1,15 +1,19 @@
 from textnode import *
 from url_extractor import *
 from md_to_html import markdown_to_html_node
+import re
 
 def main():
     md = """
-```
-This is text that _should_ remain
-the **same** even with inline stuff
-```
-"""
+# hd1
 
+## hd2
+
+#### hd4
+
+###### hd6
+
+"""
     node = markdown_to_html_node(md)
 
     return node.to_html()

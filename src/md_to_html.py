@@ -22,10 +22,11 @@ def block_to_block_node(block: str, block_type: BlockType) -> ParentNode(str, li
             block_node = ParentNode("p", children_nodes)
 
         case BlockType.HEADING:
-            children_nodes = text_to_children(block)
             for i in range(1,7):
-                if re.match(f"^([#]{{{i}}})[ ]", block):
+                if re.match(f"^([#]{{{i}}})[ ]", block) != None:
+                    children_nodes = text_to_children(block[i+1:])
                     block_node = ParentNode(f"h{i}", children_nodes)
+                    return block_node
             raise Exception("Heading passed 6 without finding a match")
 
         case BlockType.CODE:
@@ -34,14 +35,14 @@ def block_to_block_node(block: str, block_type: BlockType) -> ParentNode(str, li
             block_node = ParentNode("pre", [node])
 
         case BlockType.QUOTE:
-            children_nodes = text_to_children(block)
+            children_nodes = text_to_children(remove_quote_marker(block))
             block_node = ParentNode("blockquote", children_nodes)
 
         case BlockType.UNORDERED_LIST:
             children = []
             lines = block.split("\n")
             for line in lines:
-                children_nodes = text_to_children(line)
+                children_nodes = text_to_children(line[2:])
                 line_node = ParentNode("li", children_nodes)
                 children.append(line_node)
             block_node = ParentNode("ul", children)
@@ -50,7 +51,7 @@ def block_to_block_node(block: str, block_type: BlockType) -> ParentNode(str, li
             children = []
             lines = block.split("\n")
             for line in lines:
-                children_nodes = text_to_children(line)
+                children_nodes = text_to_children(line[3:])
                 line_node = ParentNode("li", children_nodes)
                 children.append(line_node)
             block_node = ParentNode("ol", children)
@@ -64,3 +65,9 @@ def text_to_children(text: str) -> list[HTMLNode]:
         html_nodes.append(text_node_to_html_node(node))
     return html_nodes
 
+def remove_quote_marker(block: str) -> str:
+    lines = block.split("\n")
+    trimmed_lines = []
+    for line in lines:
+        trimmed_lines.append(line[2:])
+    return "\n".join(trimmed_lines)
