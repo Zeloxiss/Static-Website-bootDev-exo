@@ -111,3 +111,28 @@ the **same** even with inline stuff
         html,
         "<div><blockquote>## This is not an <b>h2</b>\n\n- <i>Hitchhiker No-tal-ist</i></blockquote></div>",
     )
+
+        ###Extract title###
+    def test_extract_title_oneline(self):
+        md = "#   header 1 "
+        title = extract_title(md)
+        self.assertEqual(title, "header 1")
+
+    def test_extract_title_lines(self):
+        md = """
+## hd2
+
+# hd1 
+
+#### hd4
+
+###### hd6
+
+"""
+        title = extract_title(md)
+        self.assertEqual(title, "hd1")
+    
+    def test_extract_title_empty(self):
+        with self.assertRaises(Exception):
+            md = ""
+            title = extract_title(md)

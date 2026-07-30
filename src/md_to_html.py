@@ -71,3 +71,10 @@ def remove_quote_marker(block: str) -> str:
     for line in lines:
         trimmed_lines.append(line[2:])
     return "\n".join(trimmed_lines)
+
+def extract_title(markdown):
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        if re.match("^# ", block) != None:
+            return block[2:].strip(" ")
+    raise Exception("No Header1 was found in markdown text")
